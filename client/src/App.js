@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import socketIOClient from "socket.io-client";
+import io from "socket.io-client";
 
 export default class App extends Component {
   constructor(props) {
@@ -10,6 +10,8 @@ export default class App extends Component {
     }
     this.updateState = this.updateState.bind(this)
     this.handleSubmit = this.handleSubmit.bind(this);
+
+    this.socket = io.connect('http://127.0.0.1:4001');
   }
   updateState(e) {
     this.setState({
@@ -17,20 +19,28 @@ export default class App extends Component {
     })
   };
   handleSubmit(event) {
-    const { endPoint } = this.state;
-    const socket = socketIOClient(endPoint)
     const {message} = this.state
     event.preventDefault();
-    socket.emit('sendMessage', message)
+    this.socket.emit('sendMessage', message, () => {
+      console.log('message was delivered')
+      this.setState({
+        message: ''
+      })
+    })
+  }
+
+  getLocation() {
+    // const socket = io(endPoint)
+    navigator.geolocation.getCurrentPosition((position) => {
+      console.log(position.coords.longitude)
+      console.log(position.coords.latitude)
+    })
   }
 
   componentDidMount() {
-    const { endPoint } = this.state;
-    const socket = socketIOClient(endPoint)
-    socket.on('message', (message) => {
+    this.socket.on('message', (message) => {
       console.log(message)
-    })
-    
+    }) 
   }
   render() {
     return (
@@ -39,6 +49,7 @@ export default class App extends Component {
           <input value={this.props.message} onChange={this.updateState}></input>
           <button>submit</button>
         </form>
+          <button onClick={this.getLocation}>Show Location</button>
       </div>
     )
   }
