@@ -21,7 +21,7 @@ io.on('connection', socket => {
 
   socket.on('sendMessage', (message, callback) => {
 
-    io.emit('message', message)
+    io.emit('incomingMessage', message)
     callback()
   })
 
