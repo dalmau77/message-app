@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { BrowserRouter, Route } from 'react-router-dom';
-import Message from './Message'
-import Join from './Join'
+import Message from './Components/Message/Message'
+import Join from './Components/Join/Join'
 
 export default class App extends Component {
   render() {

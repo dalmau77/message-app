@@ -1,42 +1,37 @@
 import React, { Component } from 'react'
 import io from "socket.io-client";
-import Join from './Join'
+import { connect } from 'react-redux';
 import moment from 'moment';
+import {
+  updateMessage,
+  addMessage
+} from './messageAction';
 
-export default class App extends Component {
+class Message extends Component {
   constructor(props) {
     super(props);
-    this.state = {
-      message: '',
-      messages: [],
-      latitude: '',
-      longitude: '',
-      date: ''
-    }
-    this.updateMessage = this.updateMessage.bind(this)
+
+    this.getMessage = this.getMessage.bind(this)
     this.handleSubmit = this.handleSubmit.bind(this);
 
     this.socket = io.connect('http://127.0.0.1:4001');
   }
-  updateMessage(e) {
-    this.setState({
-      message: e.target.value
-    })
+  getMessage(e) {
+    const {dispatch} = this.props;
+    const {value} = e.target;
+    dispatch(updateMessage(value))
   };
 
 
-  addMessage = data => {
-    this.setState({ messages: [...this.state.messages, data] })
+  addMessage = messages => {
+    const {dispatch} = this.props;
+    dispatch(addMessage(messages))
   }
 
   handleSubmit(e) {
+    const {message} = this.props;
     e.preventDefault();
-    this.socket.emit('sendMessage', {
-      message: this.state.message,
-    })
-    this.setState({
-      message: '',
-    })
+    this.socket.emit('sendMessage',message)
   }
 
   // getLocation() {
@@ -53,27 +48,22 @@ export default class App extends Component {
 
 
   // }
-  getRoomInfo(username, room) {
-    console.log(room)
-    console.log(username)
-  }
 
   componentDidMount() {
     this.socket.on('incomingMessage', (message) => {
       console.log(message)
-      this.addMessage(message)
+      // this.addMessage(message)
     })
   }
   render() {
     return (
       <div>
-      <Join onSubmit={this.getRoomInfo}/>
-        <div>
-          {this.state.messages.map(message => (
-            <div>{moment(message.createdAt).format('h:mm')} {message.message}  </div>))}
-        </div>
+        {/* <div>
+          {this.props.messages.map((message,index) => (
+            <div key={index}>{moment(message.createdAt).format('h:mm')} {message.message}  </div>))}
+        </div> */}
         <form onSubmit={this.handleSubmit}>
-          <input value={this.state.message} onChange={this.updateMessage} placeholder='message'></input>
+          <input value={this.props.message} onChange={this.getMessage} placeholder='message'></input>
           <button>submit</button>
         </form>
         <button onClick={this.getLocation}>Show Location</button>
@@ -82,3 +72,12 @@ export default class App extends Component {
   }
 }
 
+
+function mapStoreToProps(store) {
+  return {
+    message: store.message.message,
+
+  }
+}
+
+export default connect(mapStoreToProps)(Message)

@@ -1,15 +1,16 @@
 import React, { Component } from 'react'
+import { Link } from "react-router-dom"
 
 export default class Join extends Component {
   constructor(props) {
     super(props);
     this.state = {
       username: '',
-      room: ''
+      room: '',
     }
     this.updateName = this.updateName.bind(this)
     this.updateRoom = this.updateRoom.bind(this)
-    this.OnRoomSubmit = this.OnRoomSubmit.bind(this)
+    this.onRoomSubmit = this.onRoomSubmit.bind(this)
   }
   updateName(e) {
     this.setState({
@@ -20,13 +21,16 @@ export default class Join extends Component {
     this.setState({
       room: e.target.value
     })
-    
   };
 
-  OnRoomSubmit = (e) => {
+  onRoomSubmit = (e) => {
     e.preventDefault()
-   
-    this.props.handleData(this.state)
+    const room = this.state.room
+    const username = this.state.username
+    this.setState({
+      username,
+      room
+    })
   }
 
   render() {
@@ -34,12 +38,12 @@ export default class Join extends Component {
       <div>
         <div>
           <h1>Display</h1>
-          <form>
+          <form onSubmit={this.onRoomSubmit} action='/chat-room'>
             <label>Display</label>
             <input type='text' value={this.state.username} onChange={this.updateName} placeholder='display-name'></input>
             <label>Room</label>
             <input type='text' value={this.state.room} onChange={this.updateRoom} placeholder="room" required />
-            <button onClick={this.OnRoomSubmit}>Join</button>
+           <Link to={'/chat-room'}><button onSubmit={() => this.onRoomSubmit(this.state.username, this.state.room)}>Join</button></Link>
           </form>
         </div>
       </div>
